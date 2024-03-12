@@ -222,6 +222,11 @@ select * from t1
 
 **Challenge**: we want to send out a promotional email to our existing customers. Grab the first and last names of every customer and their email address.
 
+**-- 3.1 CHALLENGE**
+``` sql
+SELECT first_name, last_name, email from customer
+```
+
 ## 3.2. DISTINCT Keyword
 
 The `distinct` / `distinct()` **keyword**  can be used to return only the distinct values in a column.
@@ -236,20 +241,25 @@ select distinct(c) from t1
 
 **Challenge**: retrieve the distinct rating types out films could have in our database.
 
+**-- 3.2 CHALLENGE**
+``` sql
+SELECT DISTINCT rating from film
+```
+
 ## 3.3. COUNT Function
 
 The `count()` **function** returns the number of input rows that match a specific condition of a query. We can apply `count()` on a specific column or just pass `count(*)`, this should return the same result. It simply returns the number of rows in the table, regardless of the column we call.
 
+**-- 3.3.1 EXERCISE**
 ```sql
-select count(c1) from t1
--- it's useful to use a column name to contextualize the query (what question were we trying to answer?)
+SELECT COUNT(*) from customer
 ```
 
 `count()` is more useful when combined with other commands, e.g. `distinct()`. We can answer questions like, how many unique names are there in the table?
 
+**-- 3.3.1 EXERCISE**
 ```sql
-select count(distinct(c1)) from t1
--- we're calling count on the result of distinct name
+SELECT COUNT(DISTINCT(name)) from category
 ```
 
 ## 3.4. WHERE Clause
@@ -279,6 +289,12 @@ where rental_rate >= 4 and replacement_cost >= 19.99 and rating = 'R'
 
 **Challenge**: from now on we will focus more on directly asking the business related questions, to more realistically model a typical task. Find the email for the customer with the name Nancy Thomas. Solution:
 
+**-- 3.4.1 EXERCISE**
+```sql
+SELECT email, first_name, last_name from customer 
+WHERE first_name = 'Nancy' and last_name = 'Thomas'
+```
+
 ```sql
 -- task: find the email for the customer with the name Nancy Thomas
 
@@ -291,28 +307,28 @@ where first_name = 'Nancy' and last_name = 'Thomas'
 
 **Challenge**: what is the movie Outlaw Hanky about? Solution:
 
+**-- 3.4.2 CHALLENGE**
 ```sql
--- select * from film where 1=0
-select description from film
-where title = 'Outlaw Hanky'
+SELECT description from film
+WHERE title = 'Outlaw Hanky'
 ```
 
 **Challenge**: get the phone number for the customer who lives at 259 Ipoh Drive.
 
+**-- 3.4.3 CHALLENGE**
 ```sql
--- select * from address where 1=0
-select phone from "address"
-where address='259 Ipoh Drive'
+SELECT phone from address
+WHERE address = '259 Ipoh Drive'
 ```
 
 ## 3.5. ORDER BY Clause
 
 We can use `order by` to sort rows based on a column value, in either ascending or descending order. Basic syntax:
 
+**-- 3.4.5 EXERCISE**
 ```sql
-select c1, c2 from t1
-order by c1 asc / desc c2 asc / desc
--- ORDER BY uses ASC by default
+SELECT email, last_name from customer
+WHERE first_name = 'John' ORDER BY customer_id ASC
 ```
 
 Notice `order by` towards the end of a query, since we want to do any selection and filtering first, before finally sorting. We can use `order by` in multiple columns (this makes sense when one column has duplicate entries), e.g.
@@ -345,36 +361,34 @@ limit 5
 -- history of the 5 most recent payments where the amount is not zero
 ```
 
+**-- 3.6 EXERCISE**
+```sql
+SELECT title from film 
+ORDER BY film_id DESC LIMIT 20
+```
+
 **Challenge**: we want to reward out first 10 paying customers. What are the customer ids of the first 10 customers who created a payment.
 
+**-- 3.6.1 CHALLENGE**
 ```sql
--- return columns names / layout of the table
--- select * from payment limit 1
-
-select distinct(customer_id), payment_date from payment
--- where
-order by payment_date asc
-limit 10
--- assumption: we want to reward 10 different paying cusotmers
+SELECT DISTINCT (customer_id), payment_date from payment
+ORDER BY payment_date ASC LIMIT 10
 ```
 
 **Challenge**: a customer wants to quickly rent a video to watch over their short lunch break. What are the titles of the 5 shortest (in length of runtime) movies?
 
+**-- 3.6.2 CHALLENGE**
 ```sql
--- see layout of the table film
--- select * from film limit 1
-
-select title, "length" from film
--- where
-order by "length" asc
-limit 5
+SELECT title, "length" from film
+ORDER BY "length" ASC LIMIT 5
 ```
 
 **Challenge**: if a customer can watch a movie that is 50 minutes or less in run time, how many options does the customer have?
 
+**-- 3.6.3 CHALLENGE**
 ```sql
-select count(title) from film
-where "length" <= 50
+SELECT COUNT(title) from film
+WHERE "length" <= 50
 ```
 
 ## 3.7. BETWEEN Operator
@@ -409,6 +423,12 @@ where c1 between 'YY-MM-DD hh:mm:ss.sss' and 'YY-MM-DD hh:mm:ss.sss'
 -- if not specified hh:mm:ss.sss is set to 00:00:00.000, which affects the logic of the upper bound!
 ```
 
+**-- 3.7 EXERCISE
+```sql
+SELECT title, release_year, "length" from film
+WHERE "length" NOT BETWEEN '80' and '120' ORDER BY "length" ASC LIMIT 100
+```
+
 ## 3.8. IN Operator
 
 In certain cases you want to check for multiple possible value options, e.g. if a user's name shows up `in` a list of know names. We can use the `in` operator to create a condition that checks to see if a value included in a list of multiple options. Basic syntax:
@@ -418,6 +438,12 @@ select c1 from t1
 where c1 in (opt1,...,optn)
 -- this is the same as WHERE c1 = opt1 OR ... OR c1 = optn
 -- the options should match the general syntax of the column
+```
+
+**-- 3.8 EXERCISE
+```sql
+SELECT address, district from address
+WHERE district IN ('Alberta', 'Texas', 'QLD')
 ```
 
 We can also use the negation `not`:
@@ -447,12 +473,24 @@ where c1 like 'A%'
 -- all names in c1 that begin with an 'A'
 ```
 
+**-- 3.9.1 EXERCISE**
+```sql
+SELECT first_name, last_name from customer
+WHERE first_name LIKE '%ia'
+```
+
 The operator `ilike` is case-insensitive. PgSQL also supports full regex capabilities (see [docs](https://www.postgresql.org/docs/13/functions-matching.html)). Example:
 
 ```sql
 select * from customer
 where first_name ilike 'j%' and last_name ilike 's%'
 -- look for customers with a first name that starts with 'j' and a last name that starts with 's' (case-insensitive)
+```
+
+**-- 3.9.2 EXERCISE**
+```sql
+SELECT first_name, last_name from customer
+WHERE first_name ILIKE 'sa%'
 ```
 
 `%` can be blank too, `_`cannot be blank. Example:
@@ -478,50 +516,58 @@ order by first_name
 -- return all customers whose name start with an 'A' and last name does not start with a 'B'. Order the results ascending by the first name.
 ```
 
+**-- 3.9.3 EXERCISE**
+```sql
+SELECT first_name, last_name from customer
+WHERE first_name LIKE 'Sam%' and last_name NOT LIKE '%Noel'
+```
+
 # 4. General Challenge 1
 
 How many payment transaction were greater than $5.00?
 
+**-- 4.1 GENERAL CHALLENGE 1**
 ```sql
-select count(amount) from payment
-where amount > 5
+SELECT COUNT(amount) from payment
+WHERE amount > '5'
 ```
 
 How many actors have a first name that starts with the letter P?
 
+**-- 4.2 GENERAL CHALLENGE 1**
 ```sql
-select count(distinct(actor_id))
-from actor
-where first_name ilike 'p%'
+SELECT COUNT(DISTINCT(actor_id)) from actor
+WHERE first_name ILIKE 'P%'
 ```
 
 How many unique districts are our customers from?
 
+**-- 4.3 GENERAL CHALLENGE 1**
 ```sql
-select count(distinct(district)) from address
--- where
+SELECT COUNT(DISTINCT(district)) from address
 ```
 
 Retrieve the list of names for those distinct districts from the previous question.
 
+**-- 4.4 GENERAL CHALLENGE 1**
 ```sql
-select distinct(district) from address
--- where
+SELECT DISTINCT(district) from address
 ```
 
 How many films have a rating of R and a replacement cost between $5 and $15? ([*](https://xzilla.net/blog/2007/Sep/PostgreSQL-8.3-Features-Enum-Datatype.html))
 
+**-- 4.5 GENERAL CHALLENGE 1**
 ```sql
-select count(title) from film
-where rating = 'R' and replacement_cost between 5 and 15
--- note that rating is mpaa_rating data type
+SELECT COUNT(*) from film
+WHERE rating = 'R' and replacement_cost BETWEEN 5 and 15
 ```
 
 How many films have the word Truman somewhere in the title?
 
+**-- 4.6 GENERAL CHALLENGE 1**
 ```sql
-select count(title) from film
-where title ilike '%truman%'
+SELECT COUNT(*) from film
+WHERE title ILIKE '%Truman%'
 ```
 
 # 5. GROUP BY Statements & Aggregate Functions
@@ -615,12 +661,14 @@ Note that the `group by` statement must appear right after the `from` or `where`
 
 In the `select` statement, columns must either have an aggregate function OR be in a `group by` call. Example:
 
+**-- 5.2 PRACTICE **
 ```sql
-select company, division, sum(sales)
--- sales won't appear in GROUP BY so we need an aggregate function to select it
-from finance_table
-group by company, division
--- this return the total number of sales per division per company
+SELECT 
+	rental_duration, 
+	rating, 
+	round(avg(replacement_cost), 2) as avg_replacement_cost,
+	percentile_disc(0.5) WITHIN GROUP(ORDER BY replacement_cost) as median_replacement_cost 
+FROM film GROUP BY rental_duration, rating ORDER BY rental_duration, rating
 ```
 
 Another example from our database:
@@ -644,7 +692,16 @@ order by
     rating 
 -- return the average and median replacement cost per rental duration per rating
 ```
-
+**-- 5.2 PRACTICE **
+```sql
+SELECT 
+	rating, 
+	round(avg(replacement_cost), 2) as avg_replacement_cost,
+	percentile_disc(0.5) WITHIN GROUP(ORDER BY replacement_cost) as median_replacement_cost
+FROM film WHERE rating in ('R', 'NC-17')
+GROUP BY rating
+ORDER BY rating
+```
 
 We can also add a `where` statement to the query. `where` statements should not refer to the aggregation result. Later on we'll use the `having` clause to filter on those results. The `having` clause was added to SQL because the `where` keyword cannot be used with aggregate functions. Example:
 
@@ -815,39 +872,30 @@ order by sum(amount) desc
 
 **Challenge**: We have two staff members, with Staff IDs 1 and 2. We want to give a bonus to the staff member that handled the most payments. (Most in terms of number of payments processed, not total dollar amount). How many payments did each staff member handle and who gets the bonus?
 
+**--5.2.1 CHALLENGE**
 ```sql
-select staff_id, count(payment_id) from payment
-group by staff_id
-```
-
-Alternative solution:
-
-```sql
-select staff_id, count(distinct(payment_id))
-from payment
-where staff_id in (1,2)
-group by staff_id
-order by count(distinct(payment_id)) desc
--- limit 5
+SELECT staff_id, COUNT(payment_id) from payment
+GROUP BY staff_id
+ORDER BY COUNT(payment_id) DESC
 ```
 
 **Challenge**: Corporate HQ is conducting a study on the relationship between replacement cost and a movie MPAA rating. What is the average replacement cost per MPAA rating?
 
+**--5.2.2 CHALLENGE**
 ```sql
-select rating, round(avg(replacement_cost),2)
+SELECT DISTINCT(rating), round(avg(replacement_cost), 2) as avg_replacement_cost
 from film
-group by rating
-order by avg(replacement_cost) desc
+GROUP BY DISTINCT(rating)
+ORDER BY avg_replacement_cost DESC
 ```
 
 **Challenge**: We are running a promotion to reward our top 5 customers with coupons. What are the customer ids of the top 5 customers by total spend?
 
+**--5.2.3 CHALLENGE**
 ```sql
-select customer_id, round(sum(amount),2)
-from payment
-group by customer_id
-order by sum(amount) desc
-limit 5
+SELECT customer_id, SUM(amount) from payment
+GROUP BY customer_id
+ORDER BY SUM(amount) DESC LIMIT 5
 ```
 
 Alternative: 
@@ -920,61 +968,60 @@ group by store_id
 having count(customer_id) >= 300
 ```
 
+**--5.3.0 CHALLENGE**
+```sql
+SELECT customer_id, SUM(amount) from payment
+WHERE customer_id NOT IN (184,87,477)
+GROUP BY customer_id
+HAVING SUM(amount) > 150
+ORDER BY SUM(amount) DESC
+```
+
 **Challenge**: We are launching a platinum service for our most loyal customers. We will assign platinum status to customers that have had 40 or more transaction payments. What customer_ids are eligible for platinum status?
 
+**--5.3.1 CHALLENGE**
 ```sql
-select customer_id, count(*)
-from payment
-group by customer_id
-having count(*) >= 40
+SELECT customer_id, COUNT(payment_id) from payment
+GROUP BY customer_id
+HAVING COUNT(payment) >= 40
 ```
 
 **Challenge**: What are the customer ids of customers who have spent more than $100 in payment transactions with our staff_id member 2?
 
+**--5.3.2 CHALLENGE**
 ```sql
-select
-    customer_id,
-    sum(amount)
-from
-    payment
-where
-    staff_id = 2
-group by
-    customer_id
-having
-    sum(amount) > 100
-order by
-    sum(amount) desc
+SELECT customer_id, SUM(amount) from payment
+WHERE staff_id = 2
+GROUP BY customer_id
+HAVING SUM(amount) > 100 ORDER BY SUM(amount) DESC
 ```
 
 # 6. Assessment Test 1
 
 Return the customer IDs of customers who have spent at least $110 with the staff member who has an ID of 2.
 
+**--6.1 ASSESSMENT TEST**
 ```sql
-select staff_id, customer_id, sum(amount)
-from payment
-where staff_id = 2
-group by staff_id, customer_id
-having sum(amount) > 110
+SELECT staff_id, customer_id SUM(amount) from payment
+WHERE staff_id = 2
+GROUP BY customer_
 ```
 
 How many films begin with the letter J?
 
+**--6.2 ASSESSMENT TEST**
 ```sql
-select count(title)
-from film
-where title like 'J%'
+SELECT title from film
+WHERE title ILIKE 'J%'
 ```
 
 What customer has the highest customer ID number whose name starts with an 'E' and has an address ID lower than 500?
 
+**--6.3 ASSESSMENT TEST**
 ```sql
-select customer_id, first_name, last_name
-from customer
-where first_name like 'E%' and address_id < 500
-order by customer_id desc
-limit 1
+SELECT customer_id, first_name, last_name from customer
+WHERE first_name LIKE 'E%' and address_id < 500
+ORDER BY customer_id DESC LIMIT 1
 ```
 
 Wrong answer:
@@ -1286,14 +1333,13 @@ select c_1,...,c_n from t2
 
 **Challenge**: California sales tax laws have changed and we need to alert our customers of this through email. What are the emails of the customers who live in California?
 
+**--7.7.1 CHALLENGE**
 ```sql
--- task: what are the emails of the customers that live in California
--- California is a district in the address table
-
-select customer.first_name, customer.last_name, customer.email, address.district
-from customer
-right join address on customer.address_id = address.address_id
-where address.district = 'California'
+SELECT customer.first_name, customer.last_name, customer.email from customer
+RIGHT JOIN address 
+on customer.address_id = address.address_id
+WHERE address.district = 'California'
+```
 
 -- this query returns the same information if we perform an inner join; we perform a right join to make sure that there is no person in California that does not have an email in the database
 ```
@@ -1309,17 +1355,12 @@ order by c.email asc
 
 **Challenge**: A customer walks in and is a huge fan of the actor "Nick Wahlberg" and wants to know which movies he is in. Get a list of all the movies "Nick Wahlberg" has been in.
 
+**--7.7.2 CHALLENGE**
 ```sql
--- task: get all Nick Wahlberg movies
--- tables: film for the title, film_actor for relationship, actor for first and last name
-
-select actor.first_name, actor.last_name, film.title
-from actor
-join film_actor
- on actor.actor_id = film_actor.actor_id
-join film
- on film.film_id = film_actor.film_id
-where actor.first_name = 'Nick' and actor.last_name = 'Wahlberg'
+SELECT actor.first_name, actor.last_name, film.title from actor
+JOIN film_actor on actor.actor_id = film_actor.actor_id
+JOIN film on film_actor.film_id = film.film_id
+WHERE actor.first_name = 'Nick' and actor.last_name = 'Wahlberg'
 ```
 
 Alternative:
@@ -1452,49 +1493,18 @@ from payment
 
 **Challenge**: During which months did payments occur? Format your answer to return back the full month name.
 
+**--8.2.1 CHALLENGE**
 ```sql
--- task: during which month did payments occur?
-
--- select extract(month from payment_date) <- this returns the months as a number
-select to_char(payment_date, 'Month')
-from payment
-group by to_char(payment_date, 'Month')
-```
-
-Alternative:
-
-```sql
-select distinct(to_char(payment_date, 'Month'))
-from payment
-```
-
-Alternative (ordering the month chronologically):
-
-```sql
--- task: during which month did payments occur?
-
-select distinct(extract(month from payment_date)) as "num_month", to_char(payment_date, 'Month')
-from payment
-order by "num_month"
-```
-
-Alternative (without the alias):
-
-```sql
-select distinct(extract(month from payment_date)), to_char(payment_date, 'Month')
-from payment
-order by date_part
+SELECT to_char(payment_date, 'Month') from payment
+GROUP BY to_char(payment_date, 'Month')
 ```
 
 **Challenge**: How many payments occurred on a Monday?
 
+**--8.1.2.2. CHALLENGE**
 ```sql
--- task: how many payments occured on a monday?
-
-select to_char(payment_date, 'day') as weekday, count(*)
-from payment
-group by weekday
--- this returns the list of weekday and it's corresponding number of payments
+SELECT to_char(payment_date, 'day') as weekday, count(*) from payment
+GROUP BY weekday
 ```
 
 ```sql
@@ -1813,58 +1823,57 @@ Running Command:
 
 How can you retrieve all the information from the cd.facilities table?
 
+**--9.1 ASSESMENT TEST 2**
 ```sql
-select *
-from cd.facility
+SELECT * from cd.facilities
+ORDER BY facid ASC 
 ```
 
 You want to print out a list of all of the facilities and their cost to members. How would you retrieve a list of only facility names and costs?
 
+**--9.2 ASSESMENT TEST 2**
 ```sql
-select name, m_cost
-from cd.facility
+SELECT name, membercost from cd.facilities
 ```
 
 How can you produce a list of facilities that charge a fee to members?
 
+**--9.3 ASSESMENT TEST 2**
 ```sql
-select name, m_cost
-from cd.facility
-where m_cost > 0
+SELECT name, membercost from cd.facilities
+WHERE membercost > 0
 ```
 
 How can you produce a list of facilities that charge a fee to members, and that fee is less than 1/50th of the monthly maintenance cost? Return the facid, facility name, member cost, and monthly maintenance of the facilities in question.
 
+**--9.4 ASSESMENT TEST 2**
 ```sql
-select fac_id, name, m_cost, maintenance
-from cd.facility
-where
- m_cost > 0
- and m_cost < maintenance/50.0
+SELECT facid, name, membercost, monthlymaintenance from cd.facilities
+WHERE membercost > 0 and membercost < monthlymaintenance/50.0
 ```
 
 How can you produce a list of all facilities with the word 'Tennis' in their name?
 
+**--9.5 ASSESMENT TEST 2**
 ```sql
-select *
-from cd.facility
-where name ilike '%tennis%'
+SELECT name from cd.facilities
+WHERE name ILIKE '%tennis%'
 ```
 
 How can you retrieve the details of facilities with ID 1 and 5? Try to do it without using the OR operator.
 
+**--9.6 ASSESMENT TEST 2**
 ```sql
-select *
-from cd.facility
-where fac_id in (1,5)
+SELECT * from cd.facilities 
+WHERE facid in (1,5)
 ```
 
 How can you produce a list of members who joined after the start of September 2012? Return the memid, surname, firstname, and joindate of the members in question.
 
+**--9.7 ASSESMENT TEST 2**
 ```sql
-select *
-from cd.member
-where join_date between '2012-09-01' and now()
+SELECT memid, surname, firstname, joindate from cd.members
+WHERE joindate between '2012-08-01' and now() 
 ```
 
 Alternative:
@@ -1877,20 +1886,18 @@ where join_date::date >= '2012-09-01'
 
 How can you produce an ordered list of the first 10 surnames in the members table? The list must not contain duplicates.
 
+**--9.8 ASSESMENT TEST 2**
 ```sql
-select distinct(last_name)
-from cd.member
-where last_name != 'GUEST'
-order by last_name
-limit 10
+SELECT DISTINCT surname from cd.members
+WHERE surname NOT ILIKE '%GUEST%'
+ORDER BY surname ASC LIMIT 10
 ```
 
 You'd like to get the signup date of your last member. How can you retrieve this information?
 
+**--9.9 ASSESMENT TEST 2**
 ```sql
-select max(join_date)
-from cd.member
--- return max
+SELECT MAX(joindate) from cd.members
 ```
 
 Alternative 1:
