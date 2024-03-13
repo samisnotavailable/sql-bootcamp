@@ -1937,44 +1937,39 @@ on m_left.join_date = m_right.max_join_date
 
 Produce a count of the number of facilities that have a cost to guests of 10 or more.
 
+**--9.10 ASSESSMENT TEST 2**
 ```sql
-select count(*)
-from cd.facility
-where g_cost >= 10
+SELECT COUNT(*) from cd.facilities
+WHERE guestcost >= 10
 ```
 
 Produce a list of the total number of slots booked per facility in the month of September 2012. Produce an output table consisting of facility id and slots, sorted by the number of slots.
 
+**--9.11 ASSESSMENT TEST 2**
 ```sql
-select fac_id, sum(slot) as booked_slots_sept
-from cd.booking
-where extract(month from start_time) = 9
--- where start_time::date >= '2012-09-01' and start_time::date <= '2012-10-01'
-group by fac_id
-order by sum(slot) asc
+SELECT facid, SUM(slots) as sept_bookings_slots from cd.bookings
+WHERE EXTRACT(month from starttime) = 9
+GROUP BY facid ORDER BY SUM(slots) ASC
 ```
 
 Produce a list of facilities with more than 1000 slots booked. Produce an output table consisting of facility id and total slots, sorted by facility id.
 
+**--9.12 ASSESSMENT TEST 2**
 ```sql
-select fac_id, sum(slot)
-from cd.booking
-group by fac_id
-having sum(slot) > 1000
-order by fac_id
+SELECT facid, SUM(slots) from cd.bookings
+GROUP BY facid HAVING SUM(slots) > 1000
+ORDER BY facid ASC
 ```
 
 How can you produce a list of the start times for bookings for tennis courts, for the date '2012-09-21'? Return a list of start time and facility name pairings, ordered by the time.
 
+**--9.13 ASSESSMENT TEST 2**
 ```sql
-select b.start_time, f.name
-from cd.booking as b
-join cd.facility as f on b.fac_id = f.fac_id
-where
- b.start_time::date = '2012-09-21'
- and f.name ilike '%tennis%court%'
-order by b.start_time
--- keyword as is optional
+SELECT bookings.starttime, facilities.name from cd.bookings 
+JOIN cd.facilities on bookings.facid = facilities.facid
+WHERE bookings.starttime::date='2012-09-21'
+AND facilities.name ILIKE '%tennis%court%'
+ORDER BY bookings.starttime
 ```
 
 Alternative:
@@ -1991,13 +1986,11 @@ order by start_time
 
 How can you produce a list of the start times for bookings by members named 'David Farrell'?
 
+**--9.14 ASSESSMENT TEST 2**
 ```sql
-select start_time
-from cd.booking as b
-join cd.member as m on b.mem_id = m.mem_id
-where
- m.first_name = 'David'
- and m.last_name = 'Farrell'
+SELECT bookings.starttime, members.firstname || ' ' || members.surname AS fullname
+FROM cd.bookings JOIN cd.members on bookings.memid = members.memid
+WHERE members.firstname = 'David' and members.surname = 'Farrell'
 ```
 
 # 10. Creating Databases and Tables
@@ -3393,7 +3386,7 @@ values (1, 'Sumit', 'sumit@gmail.com'),
        (3, 'Farhana', 'farhana@gmail.com'),
        (4, 'Robin', 'robin@gmail.com'),
        (5, 'Robin', 'robin@gmail.com'),
-       (4, 'Robin', 'another_robin@gmail.com');
+       (6, 'Robin', 'another_robin@gmail.com');
 
 
 select *
@@ -3402,11 +3395,11 @@ from users;
 
 Solutions:
 
+**--18.1 EXERCISE 1**
 ```sql
-select max(user_id), user_name, email
-from users
-group by user_name, email
-having count(user_name) > 1 and count(email) > 1
+SELECT MAX(user_id), user_name, email from users
+GROUP BY user_name, email 
+HAVING COUNT(user_name) > 1 and count(email) > 1
 ```
 
 Solution from video: Use a window function with `row_number()`.
@@ -3468,15 +3461,14 @@ select * from employee;
 
 Solution:
 
+**--18.2 EXERCISE 2**
 ```sql
-with rn as (
-	select *, row_number() over(order by emp_id) as rn
-	from employee
+WITH rownum AS (
+	SELECT *, ROW_NUMBER() OVER(ORDER BY emp_id) as rownum from employee
 )
 
-select *
-from rn
-where rn = 2
+SELECT * from rownum
+WHERE rownum = 2
 ```
 
 ## 18.3. Exercise 3
